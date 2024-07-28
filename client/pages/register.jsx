@@ -1,23 +1,30 @@
 import { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { Modal } from "antd";
+import Link from "next/link";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secret, setSecret] = useState("");
-  const handleSubmit = (e) => {
+  const [ok, setOk] = useState(false);
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios
-      .post("http://localhost:8000/api/register", {
+    try {
+      const { data } = await axios.post(`${NEXT_PUBLIC_API}/register`, {
         name,
         email,
         password,
         secret,
-      })
-      .then((r) => console.log(r))
-      .catch((e) => console.log(e));
+      });
+      setOk(data.ok);
+    } catch (error) {
+      toast.error(error.response.data);
+    }
   };
+
   return (
     <div className="container-fluid">
       <div className="row py-5 bg-secondary text-light">
@@ -25,7 +32,6 @@ const Register = () => {
           <h2>Register</h2>
         </div>
       </div>
-
       <div className="row py-5">
         <div className="col-md-6 offest-md-3">
           <form onSubmit={handleSubmit}>
@@ -83,6 +89,22 @@ const Register = () => {
               <button className="btn btn-primary col-12">Submit</button>
             </div>
           </form>
+        </div>
+      </div>
+      //Modal
+      <div className="row">
+        <div className="col">
+          <Modal
+            title="Congratulations!"
+            open={ok}
+            onCancel={() => setOk(false)}
+            footer={null}
+          >
+            <p>You have successfully registered!</p>
+            <Link href="/login" className="btn btn-primary btn-sm">
+              Login
+            </Link>
+          </Modal>
         </div>
       </div>
     </div>
